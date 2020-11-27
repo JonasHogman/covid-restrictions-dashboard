@@ -37,7 +37,7 @@ def create_state_graph(df, state):
                         row_heights=[0.9, 0.1])
 
     fig.append_trace(go.Scatter(x=df_state['Date'], y=df_state['ConfirmedCases'],
-                                name='Confirmed Cases', showlegend=False), row=1, col=1)
+                                name='Confirmed Cases', showlegend=False, mode='lines', hoverinfo='skip'), row=1, col=1)
 
     colors = {'0.0': "#FFFFFF",
               '1.0': "#FFC300",
@@ -62,20 +62,16 @@ def create_state_graph(df, state):
             base=row['Start'],
             width=[0.5],
             marker_color=colors[row['Intensity']],
-            name=legend[row['Intensity']],
+            # name=legend[row['Intensity']],
             orientation='h',
+            hoverinfo='skip',
         ), row=2, col=1)
 
     # layout changes
     fig.update_layout(barmode='overlay', template='simple_white',
                       autosize=True,
                       title_text=f"Confirmed cases and mask policy in <b>{df_state['RegionName'].iloc[0]}</b>",
-                      legend=dict(
-                          traceorder='normal',
-                          bordercolor='black',
-                          x=0,
-                          y=1,
-                      ))
+                      showlegend=False)
 
     # update x-axes to avoid empty space at start and end of graph
     fig.update_xaxes(range=[pd.to_datetime("2020-01-22"),
