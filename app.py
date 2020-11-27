@@ -39,7 +39,7 @@ def create_figure_list():
     return figure_list
 
 
-@cache.memoize(timeout=TIMEOUT)
+# @cache.memoize(timeout=TIMEOUT)
 def create_rows(figure_list):
     div_list = []
     it = iter(figure_list)
@@ -47,15 +47,15 @@ def create_rows(figure_list):
         try:
             row = html.Div(
                 dbc.Row(
-                    [dbc.Col(html.Div(x), width=6),
-                     dbc.Col(html.Div(next(it)), width=6)]
+                    [dbc.Col(html.Div(x), width=12, lg=6),
+                     dbc.Col(html.Div(next(it)), width=12, lg=6)]
 
                 )
             )
         except StopIteration as e:
             row = html.Div(
                 dbc.Row(
-                    [dbc.Col(html.Div(x), width=6)]
+                    [dbc.Col(html.Div(x), width=12, lg=6)]
 
                 )
             )

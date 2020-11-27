@@ -37,7 +37,7 @@ def create_state_graph(df, state):
                         row_heights=[0.9, 0.1])
 
     fig.append_trace(go.Scatter(x=df_state['Date'], y=df_state['ConfirmedCases'],
-                                name='Confirmed Cases', showlegend=False, mode='lines', hoverinfo='skip'), row=1, col=1)
+                                name='Confirmed Cases', showlegend=False, mode='lines', hoverinfo='skip', line_shape='spline'), row=1, col=1)
 
     colors = {'0.0': "#FFFFFF",
               '1.0': "#FFC300",
