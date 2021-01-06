@@ -21,7 +21,22 @@ TIMEOUT = 8460
 
 
 @cache.memoize(timeout=TIMEOUT)
+def get_daily_numbers():
+    df = pd.read_csv('https://github.com/OxCGRT/USA-covid-policy/raw/master/data/OxCGRT_US_latest.csv', dtype={
+        'E4_Notes': str, 'H6_Facial Coverings': float}, usecols=["CountryCode", "RegionName", "RegionCode", "Date", 'ConfirmedCases', 'H6_Facial Coverings'])
+
+    df = df[df["CountryCode"] == 'USA']
+    df = df.dropna(subset=["RegionName"])
+    df = df.sort_values("Date")
+    df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d')
+    df['H6_Facial Coverings'] = pd.to_numeric(df['H6_Facial Coverings'])
+    df['RegionCode'] = df['RegionCode'].str[-2:]
+    return df
+
+
+# @cache.memoize(timeout=TIMEOUT)
 def create_figure_list():
+    df = get_daily_numbers()
     state_list = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA",
                   "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
                   "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
@@ -35,11 +50,9 @@ def create_figure_list():
         img_b64 = "data:image/png;base64," + encoding
         img = html.Img(src=img_b64, style={'width': '100%'})
         figure_list.append(img)
-        # html.Div(dcc.Graph(figure=fig)))
     return figure_list
 
 
-# @cache.memoize(timeout=TIMEOUT)
 def create_rows(figure_list):
     div_list = []
     it = iter(figure_list)
@@ -64,36 +77,31 @@ def create_rows(figure_list):
     return div_list
 
 
-@cache.memoize(timeout=TIMEOUT)
-def get_dataframe():
-    df = pd.read_csv(
-        'assets/usa.csv')
-    return df
+def create_graph_container():
+    figure_list = create_figure_list()
+    div_list = create_rows(figure_list)
+
+    legend_html = html.Div(html.Dl([
+        html.Dt(className='zero'),
+        html.Dd('No policy'),
+        html.Dt(className='one'),
+        html.Dd('Recommended'),
+        html.Dt(className='two'),
+        html.Dd('Required in specific shared spaces'),
+        html.Dt(className='three'),
+        html.Dd('Required in all shared spaces'),
+        html.Dt(className='four'),
+        html.Dd('Required outside home at all times'),
+        html.Dt(className='none'),
+        html.Dd('No data'),
+    ], className='legend'))
+    row = html.Div(dbc.Row(dbc.Col(legend_html)))
+    div_list = [row] + div_list
+
+    return div_list
 
 
-df = get_dataframe()
-figure_list = create_figure_list()
-div_list = create_rows(figure_list)
-
-
-legend_html = html.Div(html.Dl([
-    html.Dt(className='zero'),
-    html.Dd('No policy'),
-    html.Dt(className='one'),
-    html.Dd('Recommended'),
-    html.Dt(className='two'),
-    html.Dd('Required in specific shared spaces'),
-    html.Dt(className='three'),
-    html.Dd('Required in all shared spaces'),
-    html.Dt(className='four'),
-    html.Dd('Required outside home at all times'),
-    html.Dt(className='none'),
-    html.Dd('No data'),
-], className='legend'))
-
-row = html.Div(dbc.Row(dbc.Col(legend_html)))
-
-div_list = [row] + div_list
+div_list = create_graph_container()
 
 app.layout = html.Div([
     dbc.Container(div_list
